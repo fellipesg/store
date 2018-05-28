@@ -32,4 +32,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(Client::class, 'user_id');
     }
+    public function order()
+    {
+        return $this->belongsToMany(Order::class);
+    }
 }

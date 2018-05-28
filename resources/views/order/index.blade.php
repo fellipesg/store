@@ -5,6 +5,9 @@
     <title>Notas</title>
     <link rel="stylesheet" href="{{asset('css/app.css')}}">
   </head>
+  <?php  
+    setlocale(LC_MONETARY,"pt_BR", "ptb");
+    ?>
   <body>
     <div class="container">
     <br />
@@ -13,6 +16,8 @@
         <p>{{ \Session::get('success') }}</p>
       </div><br />
      @endif
+
+
     <table class="table table-striped">
     <thead>
       <tr>
@@ -21,6 +26,7 @@
         <th>Description</th>
         <th>Cliente</th>
         <th>Vendedor</th>
+        <th>Products</th>
       </tr>
     </thead>
     <tbody>
@@ -30,11 +36,43 @@
         <td>{{$order['id']}}</td>
         <td>{{$order['date']}}</td>
         <td>{{$order['description']}}</td>
-        <td>{{ $order->client['name'] }}</td>
-        <td>{{ $order->user['name'] }}</td>
+        <td>{{ $order->client->user->name }}</td>
+        <td>{{ $order->user->name }}</td>
+        <td>
+          <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Quantidade</th>
+                  <th>Preco</th>
+                </tr>
+              </thead>
+              <tbody>
+                  <?php $total = 0;?>
+                  @foreach($order->products as $product)
+                  <?php $total += ($product->pivot->quantity * $product->pivot->price) ?>
+                    <tr>
+                      <td>{{ $product->name }}</td>
+                      <td>{{ $product->pivot->quantity }}</td>
+                      <td>{{ $product->pivot->price }}</td>
+                    </tr>
+                  @endforeach
+                  <tr>
+                    <th></th>  
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                  <tr>
+                    <td></td>
+                    <td style="float: right;">R$ {{ number_format($total, 2) }}</td>
+                  </tr>
+                </tbody>
+              </tbody>
+          </table>
+        </td>
       </tr>
       @endforeach
-    </tbody>
+      
   </table>
   </div>
   </body>

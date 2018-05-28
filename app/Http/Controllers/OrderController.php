@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Order;
 use App\Product;
+use App\Client;
+use App\User;
 class OrderController extends Controller
 {
     /**
@@ -14,8 +16,8 @@ class OrderController extends Controller
      */
     public function index()
     {
-        $orders = Order::all();
-        return view('order.index',compact('orders'));
+        $orders = Order::with('products')->get();
+        return view('order.index',compact('orders', 'clients', 'sellers'));
     }
 
     /**
@@ -26,7 +28,9 @@ class OrderController extends Controller
     public function create()
     {
         $products = Product::all();
-        return view('order.create', compact('products'));
+        $clients = Client::all();
+        $seller = User::where('name', '=', 'Vendedor1')->get()[0];
+        return view('order.create', compact('products', 'clients', 'seller'));
     }
 
     /**
@@ -37,7 +41,29 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $order = new Order();
+        $order->description = $request->get('description');
+        $products = $request->get('products');
+        $saveProducts = [];
+        foreach ($products as $key => $product) {
+            $prod = Product::find($product['id']);
+            $saveProducts[$key]['product'] = $prod;
+            $saveProducts[$key]['quantity'] = $product['quantity'];
+            $saveProducts[$key]['price'] = $product['price'];
+        }
+        $order->save();
+        foreach ($saveProducts as $key => $saveProduct) {
+            $order->products()->attach($saveProduct['product']->id, 
+                [
+                    'user_id'   =>  $order->user_id_fk,
+                    'client_id' =>  $request->get('client'),
+                    'user_id'   =>  $request->get('seller_id'),
+                    'quantity'  =>  $saveProduct['quantity'],
+                    'price'     =>  $saveProduct['price']
+                ]
+            );
+        }
+        return redirect('orders')->with('success', 'Pedido Cadastrado com Sucesso');
     }
 
     /**
