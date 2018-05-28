@@ -32,9 +32,15 @@
     <tbody>
       
       @foreach($orders as $order)
+      <?php
+          $d = new DateTime($order['date']);
+
+          $timestamp = $d->getTimestamp(); // Unix timestamp
+          $formatted_date = $d->format('d-m-Y'); 
+      ?>
       <tr>
         <td>{{$order['id']}}</td>
-        <td>{{$order['date']}}</td>
+        <td>{{$formatted_date}}</td>
         <td>{{$order['description']}}</td>
         <td>{{ $order->client->user->name }}</td>
         <td>{{ $order->user->name }}</td>

@@ -41,8 +41,13 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        $dd=date_create($request->get('date'));
+        $datepic=date_format($dd,"Y-m-d");
         $order = new Order();
         $order->description = $request->get('description');
+        $order->client_id_fk = $request->get('client');
+        $order->user_id_fk = $request->get('seller_id');
+        $order->date = $datepic;
         $products = $request->get('products');
         $saveProducts = [];
         foreach ($products as $key => $product) {
